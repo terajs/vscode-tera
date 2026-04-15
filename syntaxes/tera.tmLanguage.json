@@ -1,0 +1,561 @@
+{
+  "scopeName": "text.html.tera",
+  "patterns": [
+    {
+      "include": "#template-block"
+    },
+    {
+      "include": "#script-ts-block"
+    },
+    {
+      "include": "#script-js-block"
+    },
+    {
+      "include": "#script-default-block"
+    },
+    {
+      "include": "#style-scss-block"
+    },
+    {
+      "include": "#style-sass-block"
+    },
+    {
+      "include": "#style-less-block"
+    },
+    {
+      "include": "#style-default-block"
+    },
+    {
+      "include": "#meta-block"
+    },
+    {
+      "include": "#route-block"
+    },
+    {
+      "include": "#ai-block"
+    }
+  ],
+  "repository": {
+    "template-block": {
+      "begin": "(<)(template)\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(template)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "text.html.derivative",
+      "patterns": [
+        {
+          "include": "#template-interpolation"
+        },
+        {
+          "include": "#template-component-tag"
+        },
+        {
+          "include": "text.html.derivative"
+        }
+      ]
+    },
+    "template-interpolation": {
+      "begin": "\\{\\{",
+      "beginCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.begin.tera"
+        }
+      },
+      "end": "\\}\\}",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.section.embedded.end.tera"
+        }
+      },
+      "name": "meta.interpolation.tera",
+      "patterns": [
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    "template-component-tag": {
+      "begin": "(</?)([A-Z][\\w:-]*)(?=[\\s>/])",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.html.tera"
+        }
+      },
+      "end": "(/?>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.html.tera"
+        }
+      },
+      "patterns": [
+        {
+          "match": "[@:][A-Za-z_][\\w:.-]*|v-[A-Za-z_][\\w:.-]*",
+          "name": "entity.other.attribute-name.html.directive.tera"
+        },
+        {
+          "match": "\\b[A-Za-z_][\\w:.-]*",
+          "name": "entity.other.attribute-name.html.tera"
+        },
+        {
+          "match": "=",
+          "name": "punctuation.separator.key-value.html.tera"
+        },
+        {
+          "begin": "\"",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.html.tera"
+            }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.html.tera"
+            }
+          },
+          "name": "string.quoted.double.html.tera"
+        },
+        {
+          "begin": "'",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.begin.html.tera"
+            }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.string.end.html.tera"
+            }
+          },
+          "name": "string.quoted.single.html.tera"
+        }
+      ]
+    },
+    "script-ts-block": {
+      "begin": "(<)(script)(?=[^>]*\\blang=[\"'](?:ts|tsx)[\"'])\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(script)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.typescript.tera",
+      "patterns": [
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    "script-js-block": {
+      "begin": "(<)(script)(?=[^>]*\\blang=[\"'](?:js|jsx|javascript)[\"'])\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(script)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.javascript.tera",
+      "patterns": [
+        {
+          "include": "source.js"
+        }
+      ]
+    },
+    "script-default-block": {
+      "begin": "(<)(script)\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(script)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.typescript.tera",
+      "patterns": [
+        {
+          "include": "source.ts"
+        }
+      ]
+    },
+    "style-scss-block": {
+      "begin": "(<)(style)(?=[^>]*\\blang=[\"']scss[\"'])\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.scss.tera",
+      "patterns": [
+        {
+          "include": "source.scss"
+        }
+      ]
+    },
+    "style-sass-block": {
+      "begin": "(<)(style)(?=[^>]*\\blang=[\"']sass[\"'])\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.sass.tera",
+      "patterns": [
+        {
+          "include": "source.sass"
+        }
+      ]
+    },
+    "style-less-block": {
+      "begin": "(<)(style)(?=[^>]*\\blang=[\"']less[\"'])\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.less.tera",
+      "patterns": [
+        {
+          "include": "source.less"
+        }
+      ]
+    },
+    "style-default-block": {
+      "begin": "(<)(style)\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(style)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.css.tera",
+      "patterns": [
+        {
+          "include": "source.css"
+        }
+      ]
+    },
+    "meta-block": {
+      "begin": "(<)(meta)\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(meta)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.meta.tera",
+      "patterns": [
+        {
+          "include": "#tera-yaml-body"
+        }
+      ]
+    },
+    "route-block": {
+      "begin": "(<)(route)\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(route)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.route.tera",
+      "patterns": [
+        {
+          "include": "#tera-yaml-body"
+        }
+      ]
+    },
+    "ai-block": {
+      "begin": "(<)(ai)\\b([^>]*)(>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "meta.tag.attributes.tera"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "end": "(</)(ai)(>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.tera"
+        },
+        "2": {
+          "name": "entity.name.tag.block.tera"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.tera"
+        }
+      },
+      "contentName": "meta.embedded.block.ai.tera",
+      "patterns": [
+        {
+          "include": "#tera-yaml-body"
+        }
+      ]
+    },
+    "tera-yaml-body": {
+      "patterns": [
+        {
+          "match": "^\\s*#.*$",
+          "name": "comment.line.number-sign.tera"
+        },
+        {
+          "match": "^\\s*(-)",
+          "captures": {
+            "1": {
+              "name": "punctuation.definition.sequence.item.tera"
+            }
+          }
+        },
+        {
+          "match": "^\\s*([A-Za-z_][\\w:-]*)(\\s*)(:)",
+          "captures": {
+            "1": {
+              "name": "support.type.property-name.tera"
+            },
+            "3": {
+              "name": "punctuation.separator.key-value.tera"
+            }
+          }
+        },
+        {
+          "match": "\\b(true|false)\\b",
+          "name": "constant.language.boolean.tera"
+        },
+        {
+          "match": "\\b(auto|eager|visible|idle|interaction|none|ai|low|normal|high)\\b",
+          "name": "constant.language.enum.tera"
+        },
+        {
+          "match": "\\b\\d+(?:\\.\\d+)?\\b",
+          "name": "constant.numeric.tera"
+        },
+        {
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.tera"
+        },
+        {
+          "begin": "'",
+          "end": "'",
+          "name": "string.quoted.single.tera"
+        }
+      ]
+    }
+  }
+}

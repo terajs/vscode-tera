@@ -1,0 +1,14 @@
+<template>
+  <div class="shell" :data-state="kind">
+    <DevtoolsEmbed mode="inline" />
+    {{ count + 1 }}
+  </div>
+</template>
+
+<script lang="ts">
+const count = 1;
+</script>
+
+<style>
+.shell { color: red; }
+</style>

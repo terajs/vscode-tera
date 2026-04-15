@@ -1,0 +1,118 @@
+{
+  "name": "terajs-tera-language-tools",
+  "displayName": "Terajs .tera Tools",
+  "description": "Syntax highlighting, diagnostics, hover info, and completions for Terajs .tera SFC files.",
+  "version": "0.0.1",
+  "publisher": "terajs-local",
+  "license": "MIT",
+  "repository": "https://github.com/Thecodergabe/terajs",
+  "homepage": "https://github.com/Thecodergabe/terajs",
+  "bugs": {
+    "url": "https://github.com/Thecodergabe/terajs/issues"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "terajs",
+    "tera",
+    "sfc",
+    "vscode",
+    "language"
+  ],
+  "activationEvents": [
+    "onLanguage:tera",
+    "onCommand:terajs.inspectDevtoolsSession",
+    "onCommand:terajs.copyDevtoolsExportSnippet",
+    "onCommand:terajs.startLiveDevtoolsSession",
+    "onCommand:terajs.stopLiveDevtoolsSession",
+    "onCommand:terajs.copyLiveDevtoolsAttachSnippet"
+  ],
+  "main": "./dist/extension.js",
+  "files": [
+    "dist",
+    "syntaxes",
+    "language-configuration.json",
+    "README.md",
+    "CHANGELOG.md",
+    "package.json"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "tera",
+        "aliases": [
+          "Terajs",
+          "tera"
+        ],
+        "extensions": [
+          ".tera"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "tera",
+        "scopeName": "text.html.tera",
+        "path": "./syntaxes/tera.tmLanguage.json",
+        "embeddedLanguages": {
+          "text.html.tera": "tera",
+          "text.html.derivative": "html",
+          "meta.embedded.block.html.tera": "html",
+          "meta.embedded.block.typescript.tera": "typescript",
+          "meta.embedded.block.javascript.tera": "javascript",
+          "meta.embedded.block.css.tera": "css",
+          "meta.embedded.block.scss.tera": "scss",
+          "meta.embedded.block.sass.tera": "sass",
+          "meta.embedded.block.less.tera": "less"
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "terajs.inspectDevtoolsSession",
+        "title": "Terajs: Inspect DevTools Session"
+      },
+      {
+        "command": "terajs.copyDevtoolsExportSnippet",
+        "title": "Terajs: Copy DevTools Export Snippet"
+      },
+      {
+        "command": "terajs.startLiveDevtoolsSession",
+        "title": "Terajs: Start Live DevTools Session"
+      },
+      {
+        "command": "terajs.stopLiveDevtoolsSession",
+        "title": "Terajs: Stop Live DevTools Session"
+      },
+      {
+        "command": "terajs.copyLiveDevtoolsAttachSnippet",
+        "title": "Terajs: Copy Live DevTools Attach Snippet"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "tsc -p ./tsconfig.json",
+    "watch": "tsc -w -p ./tsconfig.json",
+    "inspect:grammar": "node ./scripts/inspect-tokenization.cjs",
+    "test:grammar": "node ./scripts/test-grammar.cjs",
+    "package": "npm run package:local",
+    "package:local": "vsce package --skip-license",
+    "publish:status": "node ./scripts/publish-ready.cjs --report",
+    "publish:check": "node ./scripts/publish-ready.cjs",
+    "package:publish": "npm run publish:check && vsce package",
+    "publish": "npm run publish:check && vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.6.0",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.2.1",
+    "typescript": "^5.9.3"
+  }
+}
