@@ -1,11 +1,13 @@
 import * as vscode from "vscode";
-import { copyLiveAttachSnippet, startLiveReceiver, stopLiveReceiver } from "./manager";
+import { autoStartLiveReceiver, copyLiveAttachSnippet, startLiveReceiver, stopLiveReceiver } from "./manager";
 
 const START_LIVE_SESSION_COMMAND = "terajs.startLiveDevtoolsSession";
 const STOP_LIVE_SESSION_COMMAND = "terajs.stopLiveDevtoolsSession";
 const COPY_LIVE_ATTACH_SNIPPET_COMMAND = "terajs.copyLiveDevtoolsAttachSnippet";
 
 export function registerLiveDevtoolsSession(context: vscode.ExtensionContext): void {
+  void autoStartLiveReceiver(context);
+
   context.subscriptions.push(
     vscode.commands.registerCommand(START_LIVE_SESSION_COMMAND, () => startLiveReceiver(context)),
     vscode.commands.registerCommand(STOP_LIVE_SESSION_COMMAND, () => stopLiveReceiver()),

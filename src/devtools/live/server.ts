@@ -9,7 +9,8 @@ const MAX_REQUEST_BYTES = 1_500_000;
 export function createLiveReceiverServer(
   context: vscode.ExtensionContext,
   token: string,
-  onSessionPayload: (payload: LiveSessionPayload) => void
+  onSessionPayload: (payload: LiveSessionPayload) => void,
+  onRevealRequested: () => void
 ): http.Server {
   return http.createServer((request, response) => {
     applyCorsHeaders(response);
@@ -27,7 +28,8 @@ export function createLiveReceiverServer(
 
     const livePath = `/live/${token}`;
     const aiPath = `/ai/${token}`;
-    if (request.url !== livePath && request.url !== aiPath) {
+    const revealPath = `/reveal/${token}`;
+    if (request.url !== livePath && request.url !== aiPath && request.url !== revealPath) {
       writeRouteResponse(response, { statusCode: 404, body: "not found" });
       return;
     }
@@ -41,6 +43,12 @@ export function createLiveReceiverServer(
         }
 
         onSessionPayload(payload);
+        writeRouteResponse(response, { statusCode: 202, body: "accepted" });
+        return;
+      }
+
+      if (request.url === revealPath) {
+        onRevealRequested();
         writeRouteResponse(response, { statusCode: 202, body: "accepted" });
         return;
       }

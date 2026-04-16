@@ -1,14 +1,20 @@
 <template>
   <div class="shell" :data-state="kind">
     <DevtoolsEmbed mode="inline" />
+    <site-preview v-if="count > 0" v-for="item in items" :class="item.className" />
     {{ count + 1 }}
   </div>
 </template>
 
 <script lang="ts">
 const count = 1;
+const items = [{ className: 'active' }];
 </script>
 
 <style>
 .shell { color: red; }
 </style>
+
+<meta>
+title: Fixture
+</meta>

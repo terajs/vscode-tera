@@ -7,6 +7,7 @@ export type LiveSessionPhase = "ready" | "update" | "dispose" | "waiting";
 export interface LiveBridgeEndpoints {
   session: string;
   ai: string;
+  reveal: string;
 }
 
 export interface LiveReceiverState {

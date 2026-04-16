@@ -68,7 +68,7 @@ The included local launch configuration opens an Extension Development Host with
 5. Install the generated `.vsix` with the VS Code CLI:
 
 ```powershell
-code --install-extension .\terajs-tera-language-tools-0.0.1.vsix
+code --install-extension .\terajs-tera-language-tools-0.0.3.vsix
 ```
 
 ## Publishing later
@@ -77,7 +77,7 @@ This project now separates local packaging from publish-ready packaging.
 
 Useful commands:
 
-- `npm run package` builds a local VSIX and intentionally skips the missing-license requirement for local use.
+- `npm run package` builds a local VSIX using the checked-in Apache-2.0 license file.
 - `npm run publish:status` reports the remaining publish blockers without failing.
 - `npm run publish:check` fails until the project is actually publish-ready.
 - `npm run package:publish` packages only after the strict publish checks pass.
@@ -86,7 +86,7 @@ Before publishing to the Marketplace:
 
 1. Change `publisher` in `package.json` to your real publisher id.
 2. Create that publisher in the Visual Studio Marketplace.
-3. Add a real root license file.
+3. Keep the root Apache-2.0 `LICENSE` file in place.
 4. Run `npm run publish:check`.
 5. Sign in with `vsce`.
 6. Run `npm run publish`.

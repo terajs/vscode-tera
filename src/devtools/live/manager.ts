@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import * as vscode from "vscode";
+import { clearAutoAttachMetadata, collectTerajsProjectRoots, writeAutoAttachMetadata } from "./autoAttachMetadata";
 import { buildLiveAttachSnippet } from "./attachSnippet";
 import { ensureLivePanel, updateLivePanel } from "./panel";
 import { createLiveReceiverServer } from "./server";
@@ -8,7 +9,44 @@ import type { LiveReceiverState, LiveSessionPayload } from "./types";
 let liveReceiverState: LiveReceiverState | null = null;
 
 export async function startLiveReceiver(context: vscode.ExtensionContext): Promise<void> {
+  await startLiveReceiverInternal(context, {
+    revealPanel: true,
+    copySnippet: true,
+    showStartedMessage: true,
+    showAlreadyRunningPrompt: true
+  });
+}
+
+export async function autoStartLiveReceiver(context: vscode.ExtensionContext): Promise<void> {
+  const terajsWorkspaceRoots = getTerajsWorkspaceRoots();
+  if (terajsWorkspaceRoots.length === 0) {
+    return;
+  }
+
+  await startLiveReceiverInternal(context, {
+    revealPanel: false,
+    copySnippet: false,
+    showStartedMessage: false,
+    showAlreadyRunningPrompt: false
+  });
+}
+
+interface StartLiveReceiverOptions {
+  revealPanel: boolean;
+  copySnippet: boolean;
+  showStartedMessage: boolean;
+  showAlreadyRunningPrompt: boolean;
+}
+
+async function startLiveReceiverInternal(
+  context: vscode.ExtensionContext,
+  options: StartLiveReceiverOptions
+): Promise<void> {
   if (liveReceiverState) {
+    if (!options.showAlreadyRunningPrompt) {
+      return;
+    }
+
     const action = await vscode.window.showInformationMessage(
       "Terajs live DevTools receiver is already running.",
       "Copy Attach Snippet",
@@ -28,7 +66,7 @@ export async function startLiveReceiver(context: vscode.ExtensionContext): Promi
   }
 
   const token = randomUUID();
-  const server = createLiveReceiverServer(context, token, applyLiveSessionPayload);
+  const server = createLiveReceiverServer(context, token, applyLiveSessionPayload, revealLivePanel);
 
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
@@ -49,7 +87,8 @@ export async function startLiveReceiver(context: vscode.ExtensionContext): Promi
     token,
     endpoints: {
       session: `http://127.0.0.1:${address.port}/live/${token}`,
-      ai: `http://127.0.0.1:${address.port}/ai/${token}`
+      ai: `http://127.0.0.1:${address.port}/ai/${token}`,
+      reveal: `http://127.0.0.1:${address.port}/reveal/${token}`
     },
     panel: null,
     latestSession: null,
@@ -57,12 +96,24 @@ export async function startLiveReceiver(context: vscode.ExtensionContext): Promi
     lastPhase: "waiting"
   };
 
-  ensureLivePanel(liveReceiverState, handlePanelDisposed);
+  publishAutoAttachMetadata(liveReceiverState.endpoints);
+
+  if (options.revealPanel) {
+    ensureLivePanel(liveReceiverState, handlePanelDisposed);
+  }
+
   const snippet = buildLiveAttachSnippet(liveReceiverState.endpoints);
-  await vscode.env.clipboard.writeText(snippet);
-  void vscode.window.showInformationMessage(
-    "Started the Terajs live DevTools receiver and copied the attach snippet to the clipboard. Paste it into the browser console on the page you want to inspect."
-  );
+  if (options.copySnippet) {
+    await vscode.env.clipboard.writeText(snippet);
+  }
+
+  if (options.showStartedMessage) {
+    void vscode.window.showInformationMessage(
+      options.copySnippet
+        ? "Started the Terajs live DevTools receiver and copied the attach snippet to the clipboard. Paste it into the browser console on the page you want to inspect."
+        : "Started the Terajs live DevTools receiver."
+    );
+  }
 }
 
 export async function stopLiveReceiver(showMessage = true): Promise<void> {
@@ -73,6 +124,7 @@ export async function stopLiveReceiver(showMessage = true): Promise<void> {
 
   liveReceiverState = null;
   state.panel?.dispose();
+  clearPublishedAutoAttachMetadata();
 
   await new Promise<void>((resolve) => {
     state.server.close(() => resolve());
@@ -108,4 +160,28 @@ function handlePanelDisposed(): void {
   if (liveReceiverState) {
     liveReceiverState.panel = null;
   }
+}
+
+function revealLivePanel(): void {
+  if (!liveReceiverState) {
+    return;
+  }
+
+  ensureLivePanel(liveReceiverState, handlePanelDisposed);
+}
+
+function getWorkspaceFolderPaths(): string[] {
+  return (vscode.workspace.workspaceFolders ?? []).map((folder) => folder.uri.fsPath);
+}
+
+function getTerajsWorkspaceRoots(): string[] {
+  return collectTerajsProjectRoots(getWorkspaceFolderPaths());
+}
+
+function publishAutoAttachMetadata(endpoints: LiveReceiverState["endpoints"]): void {
+  writeAutoAttachMetadata(getWorkspaceFolderPaths(), endpoints);
+}
+
+function clearPublishedAutoAttachMetadata(): void {
+  clearAutoAttachMetadata(getWorkspaceFolderPaths());
 }

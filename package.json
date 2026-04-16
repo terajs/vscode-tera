@@ -2,9 +2,9 @@
   "name": "terajs-tera-language-tools",
   "displayName": "Terajs .tera Tools",
   "description": "Syntax highlighting, diagnostics, hover info, and completions for Terajs .tera SFC files.",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "terajs-local",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": "https://github.com/Thecodergabe/terajs",
   "homepage": "https://github.com/Thecodergabe/terajs",
   "bugs": {
@@ -24,12 +24,10 @@
     "language"
   ],
   "activationEvents": [
-    "onLanguage:tera",
-    "onCommand:terajs.inspectDevtoolsSession",
-    "onCommand:terajs.copyDevtoolsExportSnippet",
-    "onCommand:terajs.startLiveDevtoolsSession",
-    "onCommand:terajs.stopLiveDevtoolsSession",
-    "onCommand:terajs.copyLiveDevtoolsAttachSnippet"
+    "workspaceContains:terajs.config.js",
+    "workspaceContains:terajs.config.cjs",
+    "workspaceContains:terajs.config.mjs",
+    "workspaceContains:terajs.config.ts"
   ],
   "main": "./dist/extension.js",
   "files": [
@@ -38,6 +36,7 @@
     "language-configuration.json",
     "README.md",
     "CHANGELOG.md",
+    "LICENSE",
     "package.json"
   ],
   "contributes": {
@@ -100,8 +99,9 @@
     "watch": "tsc -w -p ./tsconfig.json",
     "inspect:grammar": "node ./scripts/inspect-tokenization.cjs",
     "test:grammar": "node ./scripts/test-grammar.cjs",
+    "test:runtime": "npm run compile && node --test ./tests/devtools-runtime.test.cjs",
     "package": "npm run package:local",
-    "package:local": "vsce package --skip-license",
+    "package:local": "vsce package",
     "publish:status": "node ./scripts/publish-ready.cjs --report",
     "publish:check": "node ./scripts/publish-ready.cjs",
     "package:publish": "npm run publish:check && vsce package",

@@ -13,13 +13,13 @@ Before publishing:
 1. Create a real publisher in the Visual Studio Marketplace.
 2. Replace the `publisher` field in `package.json` with that publisher id.
 
-## 2. Add a real license file
+## 2. Keep the Apache-2.0 license file in place
 
-Local packaging currently uses `--skip-license` because this project does not yet include a license file.
+This project now includes a real root `LICENSE` file, so local packaging no longer needs `--skip-license`.
 
 Before publishing:
 
-1. Add the intended license file at the project root, such as `LICENSE`.
+1. Keep `LICENSE` at the project root.
 2. Run the publish readiness check again.
 
 ## 3. Verify publish readiness
