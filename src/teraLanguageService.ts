@@ -74,7 +74,7 @@ interface TeraDocumentAnalysis {
   structuredBlocks: Map<number, StructuredBlockAnalysis>;
 }
 
-const BLOCK_PATTERN = /<(template|script|style|meta|route|ai)\b([^>]*)>([\s\S]*?)<\/\1>/gi;
+const BLOCK_PATTERN = /<(template|script|style|meta|route|ai)\b([^>]*)>/gi;
 const SUPPORTED_TAGS: readonly TeraBlockTag[] = ["template", "script", "style", "meta", "route", "ai"];
 const STRUCTURED_TAGS = new Set<TeraStructuredBlockTag>(["meta", "route", "ai"]);
 const VOID_ELEMENTS = new Set([
@@ -284,37 +284,41 @@ function analyzeTeraSource(source: string): TeraDocumentAnalysis {
 
 function findBlocks(source: string): TeraBlock[] {
   const blocks: TeraBlock[] = [];
-  const pattern = new RegExp(BLOCK_PATTERN);
-  let match = pattern.exec(source);
+  // Match only the opening tag to begin with
+  const openPattern = /<(template|script|style|meta|route|ai)\b([^>]*)>/gi;
+  let match: RegExpExecArray | null;
 
-  while (match) {
+  while ((match = openPattern.exec(source)) !== null) {
     const tag = match[1] as TeraBlockTag;
     const attrs = match[2] ?? "";
-    const full = match[0];
-    const fullStart = match.index;
-    const openCloseIndex = full.indexOf(">");
-    const openEnd = fullStart + openCloseIndex + 1;
-    const closeTag = `</${tag}>`;
-    const closeStart = fullStart + full.lastIndexOf(closeTag);
-    const fullEnd = fullStart + full.length;
+    const openStart = match.index;
+    const openEnd = openStart + match[0].length;
+    
+    // Search for the next closing tag for this specific block name
+    const closeTagStr = `</${tag}>`;
+    let closeStart = source.indexOf(closeTagStr, openEnd);
+    
+    // If no closing tag is found (user is currently typing),
+    // treat the rest of the file as content so features don't break.
+    const isUnclosed = closeStart === -1;
+    if (isUnclosed) {
+      closeStart = source.length;
+    }
 
     blocks.push({
       tag,
       attrs,
-      openStart: fullStart,
+      openStart,
       openEnd,
       contentStart: openEnd,
       contentEnd: closeStart,
       closeStart,
-      closeEnd: closeStart + closeTag.length,
-      fullStart,
-      fullEnd,
+      closeEnd: isUnclosed ? source.length : closeStart + closeTagStr.length,
+      fullStart: openStart,
+      fullEnd: isUnclosed ? source.length : closeStart + closeTagStr.length,
       content: source.slice(openEnd, closeStart)
     });
-
-    match = pattern.exec(source);
   }
-
   return blocks.sort((left, right) => left.fullStart - right.fullStart);
 }
 
