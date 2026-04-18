@@ -1,12 +1,12 @@
 {
   "name": "terajs-tera-language-tools",
-  "displayName": "Terajs (Official) - Tera Language Tools",
-  "description": "Syntax highlighting, diagnostics, hover info, and completions for Terajs .tera SFC files.",
-  "version": "0.0.3",
+  "displayName": "Terajs - Tera Language Tools",
+  "description": "Official VS Code language support and DevTools session inspection for Terajs .tera single-file components.",
+  "version": "0.0.4",
   "publisher": "Terajs",
   "license": "Apache-2.0",
   "repository": "https://github.com/Thecodergabe/terajs",
-  "homepage": "https://github.com/Thecodergabe/terajs",
+  "homepage": "https://terajs.com",
   "icon": "terajs-logo-extension.png",
   "bugs": {
     "url": "https://github.com/Thecodergabe/terajs/issues"
@@ -21,6 +21,7 @@
     "terajs",
     "tera",
     "sfc",
+    "devtools",
     "vscode",
     "language"
   ],

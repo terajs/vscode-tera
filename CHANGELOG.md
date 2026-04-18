@@ -1,19 +1,24 @@
 # Changelog
 
-Current manifest version: `0.0.1`. The notes below describe queued changes until the next version bump is cut.
+All notable changes to `terajs-tera-language-tools` are documented in this file.
 
-## Unreleased
+## 0.0.4
 
-- Align top-level `template` and `script` tag-name scopes with the HTML tag-name family so Dark Modern and similar themes color them like Vue SFC blocks
-- Keep the previous directive and SFC bracket fixes in the next VSIX cut for an unambiguous reinstall
+- Refresh the Marketplace and repository docs so the extension reads like an official Terajs release instead of a local-only project
+- Link the extension back to the main Terajs project, documentation, and repository surfaces
+- Clarify local packaging and Marketplace publishing steps for the next release cut
+
+## 0.0.3
+
+- Align top-level `template` and `script` tag-name scopes with the HTML tag-name family so Dark Modern and similar themes color them more consistently
 - Restore Vue-like control-directive highlighting so `v-for` and related directives use keyword scopes
 - Normalize SFC block tag names and brackets so top-level `template`, `script`, `style`, `meta`, `route`, and `ai` blocks no longer inherit ordinary HTML tag coloring
 
 ## 0.0.1
 
-- Initial standalone Terajs .tera VS Code extension project
-- TextMate grammar for template, script, style, meta, route, and ai blocks
+- Initial standalone Terajs `.tera` VS Code extension project
+- TextMate grammar for `template`, `script`, `style`, `meta`, `route`, and `ai` blocks
 - Inline diagnostics for malformed template and structured metadata blocks
-- Hover docs and completions for meta, route, and ai fields
+- Hover docs and completions for `meta`, `route`, and `ai` fields
 - Commands to copy a Terajs DevTools export snippet and inspect exported DevTools sessions inside VS Code
-- Live localhost-only DevTools session attach commands for real-time safe session inspection
+- Live localhost-only DevTools session attach commands for safe real-time session inspection
