@@ -2,11 +2,12 @@
   "name": "terajs-tera-language-tools",
   "displayName": "Terajs (Official) - Tera Language Tools",
   "description": "Syntax highlighting, diagnostics, hover info, and completions for Terajs .tera SFC files.",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "terajs-local",
   "license": "Apache-2.0",
   "repository": "https://github.com/Thecodergabe/terajs",
   "homepage": "https://github.com/Thecodergabe/terajs",
+  "icon": "terajs-logo-extension.png",
   "bugs": {
     "url": "https://github.com/Thecodergabe/terajs/issues"
   },
@@ -37,6 +38,7 @@
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
+    "terajs-logo-extension.png",
     "package.json"
   ],
   "contributes": {
