@@ -2,6 +2,12 @@
 
 All notable changes to `terajs-tera-language-tools` are documented in this file.
 
+## 0.0.5
+
+- Refocus the public README on extension users instead of extension maintainers
+- Remove local development, packaging, and Marketplace publish workflow from the Marketplace-facing readme surface
+- Keep installation, Terajs project links, DevTools bridge usage, and support paths front and center
+
 ## 0.0.4
 
 - Refresh the Marketplace and repository docs so the extension reads like an official Terajs release instead of a local-only project

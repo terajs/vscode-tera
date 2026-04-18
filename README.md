@@ -8,6 +8,13 @@ Project links:
 - Terajs documentation: [terajs.com/docs](https://terajs.com/docs)
 - Source repository: [github.com/Thecodergabe/terajs](https://github.com/Thecodergabe/terajs)
 
+## Install
+
+- Marketplace: [Terajs - Tera Language Tools](https://marketplace.visualstudio.com/items?itemName=Terajs.terajs-tera-language-tools)
+- Extensions search: search for `Terajs official`
+
+The extension activates automatically in Terajs workspaces and provides the companion VS Code surface for the Terajs DevTools bridge.
+
 ## Features
 
 - Registers the `.tera` language in VS Code
@@ -18,12 +25,15 @@ Project links:
 - Imports exported Terajs DevTools sessions so you can inspect safe page metadata, AI diagnostics context, and recent runtime events inside VS Code
 - Mirrors live DevTools sessions through a localhost-only receiver and routes `Ask VS Code AI` requests through the VS Code language model API
 
-## Inspect an exported DevTools session
-
-Commands:
+## Included commands
 
 - `Terajs: Copy DevTools Export Snippet`
 - `Terajs: Inspect DevTools Session`
+- `Terajs: Start Live DevTools Session`
+- `Terajs: Copy Live DevTools Attach Snippet`
+- `Terajs: Stop Live DevTools Session`
+
+## Inspect an exported DevTools session
 
 Workflow:
 
@@ -37,12 +47,6 @@ The inspector only reads the exported session payload. It does not open a listen
 If the exported session includes `codeReferences`, the inspector can open those files directly in VS Code at the exported line and column so runtime diagnostics and AI suggestions can jump straight to likely implementation points.
 
 ## Live DevTools attach
-
-Commands:
-
-- `Terajs: Start Live DevTools Session`
-- `Terajs: Copy Live DevTools Attach Snippet`
-- `Terajs: Stop Live DevTools Session`
 
 If the current workspace contains `terajs.config.js`, `terajs.config.cjs`, `terajs.config.mjs`, or `terajs.config.ts`, the extension auto-starts the live receiver on activation. Running `Start Live DevTools Session` is still useful when you want to reveal the panel or generate a fresh one-session attach snippet.
 
@@ -61,6 +65,8 @@ The automatic attach path also installs `window.__TERAJS_VSCODE_AI_ASSISTANT__` 
 
 Live sessions use the same inspector surface, including clickable code references that resolve against the current VS Code workspace when the browser exports source-linked issues.
 
+This bridge is development-only. Production builds do not expose the bridge manifest route or auto-attach helper.
+
 Safety model:
 
 - The page does not open a listener port.
@@ -70,48 +76,8 @@ Safety model:
 - If the DevTools bridge is disabled, the attach snippet fails instead of silently widening access.
 - `Ask VS Code AI` only sends the sanitized prompt bundle that DevTools already assembled, and the extension surfaces permission, quota, and missing-model errors back to the overlay instead of silently falling back to raw page access.
 
-## Local development
+## Need help?
 
-1. `cd vscode-tera`
-2. `npm install --package-lock=false`
-3. `npm run compile`
-4. `npm run test:runtime`
-5. Open the `vscode-tera` folder in VS Code and press `F5`
-
-The included local launch configuration opens an Extension Development Host with the extension loaded.
-
-## Package a local VSIX
-
-1. `cd vscode-tera`
-2. `npm install --package-lock=false`
-3. `npm run compile`
-4. `npm run package`
-5. Install the generated `.vsix` with the VS Code CLI:
-
-```powershell
-$vsix = Get-ChildItem .\terajs-tera-language-tools-*.vsix | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-& "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd" --install-extension $vsix.FullName
-```
-
-Using `code.cmd` avoids the Windows case where `code` resolves to the GUI executable instead of the CLI shim.
-
-## Prepare a Marketplace release
-
-Useful commands:
-
-- `npm run package` builds a local VSIX using the checked-in Apache-2.0 license file.
-- `npm run test:runtime` compiles the extension and checks the live attach, auto-attach metadata, and AI bridge helpers against the built runtime.
-- `npm run publish:status` reports remaining publish blockers without failing.
-- `npm run publish:check` fails until the project is actually publish-ready.
-- `npm run package:publish` packages only after the strict publish checks pass.
-
-Before publishing to the Marketplace:
-
-1. Bump the version in `package.json` and add the release note to `CHANGELOG.md`.
-2. Confirm the publisher id in `package.json` is the account you intend to publish under.
-3. Keep the root Apache-2.0 `LICENSE` file in place.
-4. Run `npm run publish:check`.
-5. Sign in with `vsce`.
-6. Run `npm run publish`.
-
-More detailed release notes live in `PUBLISHING.md`.
+- Terajs docs: [terajs.com/docs](https://terajs.com/docs)
+- Terajs repository: [github.com/Thecodergabe/terajs](https://github.com/Thecodergabe/terajs)
+- Terajs issues: [github.com/Thecodergabe/terajs/issues](https://github.com/Thecodergabe/terajs/issues)
