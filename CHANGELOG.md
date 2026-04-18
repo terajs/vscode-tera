@@ -1,13 +1,11 @@
 # Changelog
 
-## 0.0.3
+Current manifest version: `0.0.1`. The notes below describe queued changes until the next version bump is cut.
+
+## Unreleased
 
 - Align top-level `template` and `script` tag-name scopes with the HTML tag-name family so Dark Modern and similar themes color them like Vue SFC blocks
-- Keep the previous directive and SFC bracket fixes while shipping a fresh VSIX version for an unambiguous reinstall
-
-## 0.0.2
-
-- Fix stale local reinstall confusion by shipping a new VSIX version for the updated grammar
+- Keep the previous directive and SFC bracket fixes in the next VSIX cut for an unambiguous reinstall
 - Restore Vue-like control-directive highlighting so `v-for` and related directives use keyword scopes
 - Normalize SFC block tag names and brackets so top-level `template`, `script`, `style`, `meta`, `route`, and `ai` blocks no longer inherit ordinary HTML tag coloring
 

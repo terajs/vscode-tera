@@ -65,7 +65,7 @@
       "begin": "(<)([A-Z][\\w:-]*|[a-z][\\w:-]*-[\\w:-]*)",
       "beginCaptures": {
         "1": { "name": "punctuation.definition.tag.begin.html" },
-        "2": { "name": "support.class.component.html.tera" }
+        "2": { "name": "entity.name.tag.html support.class.component.html.tera" }
       },
       "end": "(/?>)",
       "endCaptures": { "1": { "name": "punctuation.definition.tag.end.html" } },
@@ -73,12 +73,36 @@
     },
     "html-tag-attributes": {
       "patterns": [
+        { "include": "#conditional-directive-attribute" },
+        { "include": "#loop-directive-attribute" },
         { "include": "#directive-attribute" },
         { "match": "\\b[A-Za-z_][\\w:.-]*", "name": "entity.other.attribute-name.html" },
         { "match": "=", "name": "punctuation.separator.key-value.html" },
         { "begin": "\"", "end": "\"", "name": "string.quoted.double.html" },
         { "begin": "'", "end": "'", "name": "string.quoted.single.html" }
       ]
+    },
+    "conditional-directive-attribute": {
+      "begin": "(v-(?:if|else-if|else|show))(\\s*)(=)(\\s*)([\"'])",
+      "beginCaptures": {
+        "1": { "name": "entity.other.attribute-name.html keyword.control.conditional.tera" },
+        "3": { "name": "punctuation.separator.key-value.html" },
+        "5": { "name": "punctuation.definition.string.begin.html" }
+      },
+      "end": "\\5",
+      "endCaptures": { "0": { "name": "punctuation.definition.string.end.html" } },
+      "patterns": [{ "include": "source.ts" }]
+    },
+    "loop-directive-attribute": {
+      "begin": "(v-for)(\\s*)(=)(\\s*)([\"'])",
+      "beginCaptures": {
+        "1": { "name": "entity.other.attribute-name.html keyword.control.loop.tera" },
+        "3": { "name": "punctuation.separator.key-value.html" },
+        "5": { "name": "punctuation.definition.string.begin.html" }
+      },
+      "end": "\\5",
+      "endCaptures": { "0": { "name": "punctuation.definition.string.end.html" } },
+      "patterns": [{ "include": "source.ts" }]
     },
     "directive-attribute": {
       "begin": "([@:][\\w:.-]+|v-[\\w:.-]+)(\\s*)(=)(\\s*)([\"'])",

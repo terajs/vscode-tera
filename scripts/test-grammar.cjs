@@ -77,6 +77,7 @@ async function main() {
   const componentLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '<DevtoolsEmbed mode="inline"'));
   const componentTag = findToken(componentLine.tokens, (token) => token.text === 'DevtoolsEmbed', 'component tag');
   assertTokenIncludesExactScope(componentTag, 'entity.name.tag.html', 'component tag');
+  assertTokenIncludesExactScope(componentTag, 'support.class.component.html.tera', 'component tag');
 
   const componentAttribute = findToken(componentLine.tokens, (token) => token.text === 'mode', 'component attribute');
   assertTokenIncludesExactScope(componentAttribute, 'entity.other.attribute-name.html', 'component attribute');
@@ -87,6 +88,7 @@ async function main() {
   const directiveLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '<site-preview v-if="count > 0" v-for="item in items" :class="item.className" />'));
   const kebabComponentTag = findToken(directiveLine.tokens, (token) => token.text === 'site-preview', 'kebab component tag');
   assertTokenIncludesExactScope(kebabComponentTag, 'entity.name.tag.html', 'kebab component tag');
+  assertTokenIncludesExactScope(kebabComponentTag, 'support.class.component.html.tera', 'kebab component tag');
 
   const ifDirective = findToken(directiveLine.tokens, (token) => token.text === 'v-if', 'v-if directive');
   assertTokenIncludesExactScope(ifDirective, 'keyword.control.conditional.tera', 'v-if directive');
@@ -134,7 +136,7 @@ async function main() {
 
   const styleBlockLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '<style>'));
   const styleBlockTag = findToken(styleBlockLine.tokens, (token) => token.text === 'style', 'style block tag');
-  assertTokenIncludesExactScope(styleBlockTag, 'storage.type.block.tera', 'style block tag');
+  assertTokenIncludesExactScope(styleBlockTag, 'entity.name.tag.style.html.tera', 'style block tag');
 
   const metaBlockLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '<meta>'));
   const metaBlockTag = findToken(metaBlockLine.tokens, (token) => token.text === 'meta', 'meta block tag');
