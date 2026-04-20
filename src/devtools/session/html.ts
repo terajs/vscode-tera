@@ -59,6 +59,21 @@ function renderMetric(label: string, value: string): string {
   `;
 }
 
+function renderStringList(title: string, items: string[]): string {
+  if (items.length === 0) {
+    return "";
+  }
+
+  return `
+    <div class="panel" style="margin-top: 14px;">
+      <h3>${escapeHtml(title)}</h3>
+      <ul>
+        ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+}
+
 export function renderSessionHtml(
   session: DevtoolsSessionExport,
   source: string,
@@ -331,6 +346,20 @@ export function renderSessionHtml(
       ${renderMetric("Metadata info", String(infoCount))}
       ${renderMetric("Meta tags", String(documentSummary?.metaTags.length ?? session.snapshot.document?.metaTagCount ?? 0))}
       ${renderMetric("Head links", String(documentSummary?.linkTags.length ?? session.snapshot.document?.linkTagCount ?? 0))}
+    </section>
+
+    <section class="panel">
+      <h2>AI Diagnosis</h2>
+      <div class="grid">
+        ${renderMetric("Assistant state", session.snapshot.ai.status)}
+        ${renderMetric("Diagnosis summary", session.snapshot.ai.summary ?? "not available")}
+        ${renderMetric("Likely causes", String(session.snapshot.ai.likelyCauses.length))}
+        ${renderMetric("Next checks", String(session.snapshot.ai.nextChecks.length))}
+      </div>
+      <p class="muted" style="margin-top: 12px;">Likely cause hint: ${escapeHtml(session.snapshot.ai.likelyCause ?? "none")}</p>
+      ${renderStringList("Likely Causes", session.snapshot.ai.likelyCauses)}
+      ${renderStringList("Next Checks", session.snapshot.ai.nextChecks)}
+      ${renderStringList("Suggested Fixes", session.snapshot.ai.suggestedFixes)}
     </section>
 
     <section class="panel">

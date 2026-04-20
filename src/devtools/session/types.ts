@@ -66,6 +66,10 @@ export interface SessionSnapshot {
     status: string;
     likelyCause: string | null;
     error: string | null;
+    summary: string | null;
+    likelyCauses: string[];
+    nextChecks: string[];
+    suggestedFixes: string[];
     promptAvailable: boolean;
     responseAvailable: boolean;
     assistantEnabled: boolean;

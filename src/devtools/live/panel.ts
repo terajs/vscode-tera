@@ -13,7 +13,21 @@ export function renderLiveSessionPanel(state: LiveReceiverState): string {
     return renderWaitingHtml(buildLiveAttachSnippet(state.endpoints));
   }
 
-  const source = `live attach | phase: ${state.lastPhase} | updated: ${state.lastUpdateAt ? new Date(state.lastUpdateAt).toLocaleTimeString() : "pending"}`;
+  const sourceParts = [
+    `live attach | state: ${state.connectionState}`,
+    `phase: ${state.lastPhase}`,
+    `updated: ${state.lastUpdateAt ? new Date(state.lastUpdateAt).toLocaleTimeString() : "pending"}`
+  ];
+
+  if (state.connectedAt) {
+    sourceParts.push(`connected: ${new Date(state.connectedAt).toLocaleTimeString()}`);
+  }
+
+  if (state.lastSessionInstanceId) {
+    sourceParts.push(`instance: ${state.lastSessionInstanceId}`);
+  }
+
+  const source = sourceParts.join(" | ");
   return state.panel
     ? renderSessionHtml(state.latestSession, source, createSessionHtmlRenderOptions(state.panel.webview))
     : renderSessionHtml(state.latestSession, source);

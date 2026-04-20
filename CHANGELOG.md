@@ -2,6 +2,13 @@
 
 All notable changes to `terajs-tera-language-tools` are documented in this file.
 
+## 0.0.6
+
+- Add the sticky `@terajs` chat participant, `Terajs: Inspect Attached Site`, and the attached-site status bar surface so connected pages can be inspected directly in chat from the current sanitized snapshot
+- Register the `getAttachedTerajsSiteDiagnostics` language-model tool and route attached-site inspection through the local service bridge instead of requiring the mirrored panel-first workflow
+- Track live receiver connection state and acknowledgements, render structured AI diagnosis details in the session inspector, and improve oversized live-payload handling with clean `413` responses
+- Refresh the public docs around the explicit `Connect VS Code Bridge` flow, direct Copilot inspection, and the development-only safety model
+
 ## 0.0.5
 
 - Refocus the public README on extension users instead of extension maintainers

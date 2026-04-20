@@ -2,14 +2,16 @@ import * as http from "node:http";
 import type * as vscode from "vscode";
 import { handleAIRouteRequest } from "./routes/aiRoute";
 import { parseLiveSessionPayload } from "./routes/sessionRoute";
-import type { LiveRouteResponse, LiveSessionPayload } from "./types";
+import type { LiveRouteResponse, LiveSessionAck, LiveSessionPayload } from "./types";
 
-const MAX_REQUEST_BYTES = 1_500_000;
+// Real Terajs live sessions can exceed the previous 1.5 MB ceiling once route,
+// component, and event snapshots are populated in a full app runtime.
+const MAX_REQUEST_BYTES = 5_000_000;
 
 export function createLiveReceiverServer(
   context: vscode.ExtensionContext,
   token: string,
-  onSessionPayload: (payload: LiveSessionPayload) => void,
+  onSessionPayload: (payload: LiveSessionPayload) => LiveSessionAck,
   onRevealRequested: () => void
 ): http.Server {
   return http.createServer((request, response) => {
@@ -42,8 +44,12 @@ export function createLiveReceiverServer(
           return;
         }
 
-        onSessionPayload(payload);
-        writeRouteResponse(response, { statusCode: 202, body: "accepted" });
+        const ack = onSessionPayload(payload);
+        writeRouteResponse(response, {
+          statusCode: 202,
+          body: JSON.stringify(ack),
+          contentType: "application/json;charset=UTF-8"
+        });
         return;
       }
 
@@ -81,6 +87,7 @@ function readRequestBody(request: http.IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
     let rawBody = "";
     let settled = false;
+    let payloadTooLarge = false;
 
     const fail = (error: Error): void => {
       if (settled) {
@@ -102,13 +109,24 @@ function readRequestBody(request: http.IncomingMessage): Promise<string> {
 
     request.setEncoding("utf8");
     request.on("data", (chunk: string) => {
+      if (payloadTooLarge) {
+        return;
+      }
+
       rawBody += chunk;
       if (rawBody.length > MAX_REQUEST_BYTES) {
-        fail(new Error("payload too large"));
-        request.destroy();
+        payloadTooLarge = true;
+        rawBody = "";
       }
     });
-    request.on("end", succeed);
+    request.on("end", () => {
+      if (payloadTooLarge) {
+        fail(new Error("payload too large"));
+        return;
+      }
+
+      succeed();
+    });
     request.on("error", (error) => fail(error instanceof Error ? error : new Error("request error")));
   });
 }

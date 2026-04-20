@@ -6,6 +6,8 @@ This extension is published as part of the broader Terajs project:
 - Documentation: [terajs.com/docs](https://terajs.com/docs)
 - Source repository: [github.com/Thecodergabe/terajs](https://github.com/Thecodergabe/terajs)
 
+Marketplace releases are manual today.
+
 Use this checklist before the next Marketplace release.
 
 ## 1. Bump the release version

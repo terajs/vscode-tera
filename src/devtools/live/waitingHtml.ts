@@ -50,10 +50,10 @@ export function renderWaitingHtml(snippet: string): string {
 <body>
   <div class="panel">
     <h1>Terajs Live DevTools Session</h1>
-    <p class="muted">Waiting for a live DevTools attach. This receiver listens only on localhost, only accepts the current tokenized snippet, and also exposes the Ask VS Code AI bridge for this session.</p>
+    <p class="muted">Waiting for a live DevTools attach. This receiver listens only on localhost, exposes the Ask Copilot bridge for this session, and can be discovered automatically by DevTools-enabled Terajs pages before you explicitly connect from the app.</p>
     <ol>
       <li>Open the Terajs page with DevTools mounted.</li>
-      <li>Paste the attach snippet into the browser console.</li>
+      <li>Use the page-side Connect action when the VS Code receiver appears, or paste the attach snippet into the browser console for a manual attach.</li>
       <li>Keep the page open while the extension receives sanitized session updates and AI requests.</li>
     </ol>
     <p class="muted">Attach snippet:</p>

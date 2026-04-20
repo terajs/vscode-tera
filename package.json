@@ -2,7 +2,7 @@
   "name": "terajs-tera-language-tools",
   "displayName": "Terajs - Tera Language Tools",
   "description": "Official VS Code language support and DevTools session inspection for Terajs .tera single-file components.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "Terajs",
   "license": "Apache-2.0",
   "repository": "https://github.com/Thecodergabe/terajs",
@@ -80,6 +80,10 @@
         "title": "Terajs: Inspect DevTools Session"
       },
       {
+        "command": "terajs.inspectAttachedSite",
+        "title": "Terajs: Inspect Attached Site"
+      },
+      {
         "command": "terajs.copyDevtoolsExportSnippet",
         "title": "Terajs: Copy DevTools Export Snippet"
       },
@@ -94,6 +98,67 @@
       {
         "command": "terajs.copyLiveDevtoolsAttachSnippet",
         "title": "Terajs: Copy Live DevTools Attach Snippet"
+      }
+    ],
+    "chatParticipants": [
+      {
+        "id": "terajs.attached-site",
+        "name": "terajs",
+        "fullName": "Terajs",
+        "description": "Inspects the currently attached Terajs DevTools site snapshot and answers debugging questions from that live bridge state.",
+        "isSticky": true,
+        "sampleRequest": "Inspect the attached Terajs site and summarize the most important issues.",
+        "disambiguation": [
+          {
+            "category": "terajs_attached_site",
+            "description": "Questions about an attached Terajs DevTools site snapshot, including route state, runtime events, metadata, and AI diagnostics coming from the local service bridge.",
+            "examples": [
+              "Inspect the attached Terajs site and summarize what's wrong.",
+              "What do the recent Terajs runtime events show?",
+              "Check the attached Terajs page for route or metadata issues."
+            ]
+          }
+        ],
+        "commands": [
+          {
+            "name": "inspect",
+            "description": "Inspect the currently attached Terajs site snapshot.",
+            "sampleRequest": "Inspect the attached Terajs site and summarize the most important issues."
+          },
+          {
+            "name": "events",
+            "description": "Summarize recent runtime events from the attached Terajs site.",
+            "sampleRequest": "Summarize the most relevant recent runtime events from the attached Terajs site."
+          },
+          {
+            "name": "metadata",
+            "description": "Review route and document metadata from the attached Terajs site.",
+            "sampleRequest": "Review the attached Terajs site's route and document metadata."
+          }
+        ]
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "getAttachedTerajsSiteDiagnostics",
+        "displayName": "Terajs Attached Site Diagnostics",
+        "toolReferenceName": "getAttachedTerajsSiteDiagnostics",
+        "canBeReferencedInPrompt": true,
+        "modelDescription": "Reads the latest sanitized diagnostics snapshot from a currently attached Terajs DevTools site bridge. Use this to inspect route metadata, AI diagnostics, code references, and recent runtime events from the live site without opening the mirrored live session panel.",
+        "userDescription": "Read the latest attached Terajs site diagnostics snapshot from the local DevTools service bridge.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "eventLimit": {
+              "type": "number",
+              "description": "Maximum number of recent runtime events to include. Defaults to 60 and is capped to avoid oversized tool results."
+            },
+            "includeEventPayloads": {
+              "type": "boolean",
+              "description": "Whether to include event payload objects for recent events. Defaults to false to keep the result smaller."
+            }
+          }
+        }
       }
     ]
   },

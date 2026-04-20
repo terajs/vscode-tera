@@ -55,6 +55,20 @@ const root = path.resolve(__dirname, '..');
 const distRoot = path.join(root, 'dist');
 
 const {
+  buildAttachedSiteChatMessages,
+  buildAttachedSiteChatQuery,
+  TERAJS_CHAT_PARTICIPANT_NAME
+} = require(path.join(distRoot, 'devtools', 'ai', 'chatPrompts.js'));
+const {
+  buildRouteFileCandidates,
+  extractCapitalizedComponentNames,
+  extractRelativeImports,
+  formatAttachedSiteWorkspaceEvidence
+} = require(path.join(distRoot, 'devtools', 'ai', 'workspaceEvidence.js'));
+const {
+  buildAttachedSiteDiagnosticsPayload
+} = require(path.join(distRoot, 'devtools', 'ai', 'attachedSiteDiagnostics.js'));
+const {
   clearAutoAttachMetadata,
   resolveAutoAttachMetadataFilePath,
   writeAutoAttachMetadata
@@ -93,6 +107,16 @@ function createSampleSessionExport() {
         status: 'ready',
         likelyCause: 'A reactive effect is retriggering on every live update.',
         error: null,
+        summary: 'Automatic VS Code diagnosis completed for the current live session.',
+        likelyCauses: [
+          'A route-level effect is re-entering while the current session is connected.'
+        ],
+        nextChecks: [
+          'Inspect the first effect that writes during route activation.'
+        ],
+        suggestedFixes: [
+          'Guard the effect or move the write behind an explicit user action.'
+        ],
         promptAvailable: true,
         responseAvailable: true,
         assistantEnabled: true,
@@ -203,6 +227,15 @@ async function close(server) {
   });
 }
 
+function padAsciiBody(body, targetBytes) {
+  const bodyBytes = Buffer.byteLength(body, 'utf8');
+  if (bodyBytes >= targetBytes) {
+    return body;
+  }
+
+  return body + ' '.repeat(targetBytes - bodyBytes);
+}
+
 test('parses exported sessions and renders the static inspector html', () => {
   const parsed = tryParseDevtoolsSession(JSON.stringify(createSampleSessionExport()));
   assert.ok(parsed, 'Expected the exported session to parse.');
@@ -217,6 +250,7 @@ test('parses exported sessions and renders the static inspector html', () => {
   assert.match(html, /Terajs DevTools Session/);
   assert.match(html, /Imported from clipboard/);
   assert.match(html, /Devtools Embed/);
+  assert.match(html, /Automatic VS Code diagnosis completed for the current live session/);
   assert.match(html, /open-code-reference/);
   assert.match(html, /nonce="nonce123"/);
 });
@@ -232,6 +266,146 @@ test('builds a live attach snippet that installs the VS Code AI bridge', () => {
   assert.match(snippet, /terajs:devtools:extension-ai-bridge:change/);
   assert.match(snippet, /http:\/\/127\.0\.0\.1:40123\/live\/test-token/);
   assert.match(snippet, /http:\/\/127\.0\.0\.1:40123\/ai\/test-token/);
+});
+
+test('builds a bounded tool payload from the latest attached site session', () => {
+  const session = createSampleSessionExport();
+  session.events.push({
+    type: 'route:navigate',
+    timestamp: 1713120000500,
+    level: 'info',
+    payload: {
+      to: '/docs'
+    }
+  });
+
+  const payload = buildAttachedSiteDiagnosticsPayload({
+    server: null,
+    token: 'test-token',
+    endpoints: {
+      session: 'http://127.0.0.1:40123/live/test-token',
+      ai: 'http://127.0.0.1:40123/ai/test-token',
+      reveal: 'http://127.0.0.1:40123/reveal/test-token'
+    },
+    panel: null,
+    latestSession: session,
+    connectionState: 'connected',
+    connectedAt: 1713120000000,
+    lastSessionInstanceId: session.snapshot.instanceId,
+    lastUpdateAt: 1713120000500,
+    lastPhase: 'update'
+  }, {
+    eventLimit: 1
+  });
+
+  assert.equal(payload.source, 'terajs-devtools-service-bridge');
+  assert.equal(payload.receiver.connected, true);
+  assert.equal(payload.session.totalEventCount, 2);
+  assert.equal(payload.session.recentEvents.length, 1);
+  assert.equal(payload.session.recentEvents[0].type, 'route:navigate');
+  assert.equal('payload' in payload.session.recentEvents[0], false);
+});
+
+test('can include recent event payloads in the attached site tool payload', () => {
+  const session = createSampleSessionExport();
+  const payload = buildAttachedSiteDiagnosticsPayload({
+    server: null,
+    token: 'test-token',
+    endpoints: {
+      session: 'http://127.0.0.1:40123/live/test-token',
+      ai: 'http://127.0.0.1:40123/ai/test-token',
+      reveal: 'http://127.0.0.1:40123/reveal/test-token'
+    },
+    panel: null,
+    latestSession: session,
+    connectionState: 'waiting',
+    connectedAt: null,
+    lastSessionInstanceId: session.snapshot.instanceId,
+    lastUpdateAt: 1713120000000,
+    lastPhase: 'dispose'
+  }, {
+    includeEventPayloads: true,
+    eventLimit: 5
+  });
+
+  assert.match(payload.message, /last sanitized Terajs snapshot/i);
+  assert.deepEqual(payload.session.recentEvents[0].payload, {
+    message: 'Live diagnostics loop'
+  });
+});
+
+test('builds Terajs chat messages for attached-site inspection', () => {
+  const session = createSampleSessionExport();
+  const payload = buildAttachedSiteDiagnosticsPayload({
+    server: null,
+    token: 'test-token',
+    endpoints: {
+      session: 'http://127.0.0.1:40123/live/test-token',
+      ai: 'http://127.0.0.1:40123/ai/test-token',
+      reveal: 'http://127.0.0.1:40123/reveal/test-token'
+    },
+    panel: null,
+    latestSession: session,
+    connectionState: 'connected',
+    connectedAt: 1713120000000,
+    lastSessionInstanceId: session.snapshot.instanceId,
+    lastUpdateAt: 1713120000500,
+    lastPhase: 'ready'
+  });
+
+  const messages = buildAttachedSiteChatMessages(
+    payload,
+    '',
+    'inspect',
+    formatAttachedSiteWorkspaceEvidence({
+      routePath: '/',
+      files: [
+        {
+          path: 'src/pages/index.tera',
+          reason: 'Active route shell for /',
+          excerpt: '  1: <template>\n  2:   <section />'
+        }
+      ]
+    })
+  );
+
+  assert.equal(messages.length, 4);
+  assert.match(messages[0].content, /Terajs attached-site inspector/);
+  assert.match(messages[0].content, /label file suspects as hypotheses/);
+  assert.match(messages[0].content, /Do not pad metadata-only diagnoses with unrelated components/);
+  assert.match(messages[1].content, /Attached Terajs site snapshot/);
+  assert.match(messages[2].content, /Attached workspace evidence for route: \//);
+  assert.match(messages[3].content, /Inspect the currently attached Terajs site/);
+});
+
+test('builds the Terajs chat query for inspect entrypoints', () => {
+  assert.equal(TERAJS_CHAT_PARTICIPANT_NAME, 'terajs');
+  assert.equal(buildAttachedSiteChatQuery(), '@terajs /inspect');
+  assert.equal(buildAttachedSiteChatQuery('events'), '@terajs /events');
+});
+
+test('builds likely route file candidates from attached page paths', () => {
+  assert.deepEqual(buildRouteFileCandidates('/'), ['src/pages/index.tera']);
+  assert.deepEqual(buildRouteFileCandidates('/docs/quickstart'), [
+    'src/pages/docs/quickstart.tera',
+    'src/pages/docs/quickstart/index.tera'
+  ]);
+});
+
+test('extracts likely component tags and relative imports from tera files', () => {
+  const source = [
+    '<template>',
+    '  <SiteHeader />',
+    '  <ContentPage />',
+    '</template>',
+    '<script>',
+    'import { docsPages } from "../../content/docs.ts"',
+    'import DemoCard from "../components/DemoCard.tera"',
+    '</script>'
+  ].join('\n');
+
+  assert.deepEqual(extractCapitalizedComponentNames(source), ['SiteHeader', 'ContentPage']);
+  assert.deepEqual(extractRelativeImports(source), ['../../content/docs.ts', '../components/DemoCard.tera']);
 });
 
 test('writes and clears auto-attach metadata for Terajs workspaces', () => {
@@ -297,6 +471,13 @@ test('accepts live session payloads and serves AI bridge requests', async () => 
   let receivedPayload = null;
   const server = createLiveReceiverServer(context, 'test-token', (payload) => {
     receivedPayload = payload;
+    return {
+      accepted: true,
+      phase: payload.phase,
+      state: 'connected',
+      connectedAt: 1713120005000,
+      instanceId: payload.session.snapshot.instanceId
+    };
   });
   const baseUrl = await listen(server);
 
@@ -314,6 +495,12 @@ test('accepts live session payloads and serves AI bridge requests', async () => 
     });
 
     assert.equal(liveResponse.status, 202);
+    const liveBody = await liveResponse.json();
+    assert.equal(liveBody.accepted, true);
+    assert.equal(liveBody.phase, 'ready');
+    assert.equal(liveBody.state, 'connected');
+    assert.equal(liveBody.instanceId, 'instance-1');
+    assert.equal(typeof liveBody.connectedAt, 'number');
     assert.ok(receivedPayload, 'Expected the live payload callback to run.');
     assert.equal(receivedPayload.phase, 'ready');
     assert.equal(receivedPayload.session.snapshot.instanceId, 'instance-1');
@@ -354,6 +541,85 @@ test('accepts live session payloads and serves AI bridge requests', async () => 
     });
 
     assert.equal(invalidAiResponse.status, 400);
+  } finally {
+    await close(server);
+  }
+});
+
+test('accepts live session payloads above the previous receiver limit', async () => {
+  const context = {
+    languageModelAccessInformation: {
+      canSendRequest() {
+        return true;
+      }
+    }
+  };
+
+  let receivedPayload = null;
+  const server = createLiveReceiverServer(context, 'test-token', (payload) => {
+    receivedPayload = payload;
+    return {
+      accepted: true,
+      phase: payload.phase,
+      state: 'connected',
+      connectedAt: 1713120005000,
+      instanceId: payload.session.snapshot.instanceId
+    };
+  }, () => {});
+  const baseUrl = await listen(server);
+
+  try {
+    const payload = padAsciiBody(JSON.stringify({
+      phase: 'ready',
+      session: createSampleSessionExport()
+    }), 1_600_000);
+
+    const response = await fetch(`${baseUrl}/live/test-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=UTF-8'
+      },
+      body: payload
+    });
+
+    assert.equal(response.status, 202);
+    assert.ok(receivedPayload, 'Expected the large live payload callback to run.');
+    assert.equal(receivedPayload.session.snapshot.instanceId, 'instance-1');
+  } finally {
+    await close(server);
+  }
+});
+
+test('returns 413 for oversized live session payloads without resetting the connection', async () => {
+  const context = {
+    languageModelAccessInformation: {
+      canSendRequest() {
+        return true;
+      }
+    }
+  };
+
+  const server = createLiveReceiverServer(context, 'test-token', () => {
+    throw new Error('Expected oversized payloads to be rejected before session handling.');
+  }, () => {});
+  const baseUrl = await listen(server);
+
+  try {
+    const payload = padAsciiBody(JSON.stringify({
+      phase: 'ready',
+      session: createSampleSessionExport()
+    }), 5_100_000);
+
+    const response = await fetch(`${baseUrl}/live/test-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=UTF-8'
+      },
+      body: payload
+    });
+
+    assert.equal(response.status, 413);
+    assert.equal(await response.text(), 'payload too large');
   } finally {
     await close(server);
   }

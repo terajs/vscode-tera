@@ -4,9 +4,23 @@ import { clearAutoAttachMetadata, collectTerajsProjectRoots, writeAutoAttachMeta
 import { buildLiveAttachSnippet } from "./attachSnippet";
 import { ensureLivePanel, updateLivePanel } from "./panel";
 import { createLiveReceiverServer } from "./server";
-import type { LiveReceiverState, LiveSessionPayload } from "./types";
+import type { LiveReceiverState, LiveSessionAck, LiveSessionPayload } from "./types";
 
 let liveReceiverState: LiveReceiverState | null = null;
+const liveReceiverStateChanged = new vscode.EventEmitter<LiveReceiverState | null>();
+
+export const onDidChangeLiveReceiverState: vscode.Event<LiveReceiverState | null> = liveReceiverStateChanged.event;
+
+/**
+ * Returns the current live receiver state, including the latest sanitized session snapshot.
+ */
+export function getLiveReceiverState(): LiveReceiverState | null {
+  return liveReceiverState;
+}
+
+function emitLiveReceiverStateChanged(): void {
+  liveReceiverStateChanged.fire(liveReceiverState);
+}
 
 export async function startLiveReceiver(context: vscode.ExtensionContext): Promise<void> {
   await startLiveReceiverInternal(context, {
@@ -92,11 +106,15 @@ async function startLiveReceiverInternal(
     },
     panel: null,
     latestSession: null,
+    connectionState: "waiting",
+    connectedAt: null,
+    lastSessionInstanceId: null,
     lastUpdateAt: null,
     lastPhase: "waiting"
   };
 
   publishAutoAttachMetadata(liveReceiverState.endpoints);
+  emitLiveReceiverStateChanged();
 
   if (options.revealPanel) {
     ensureLivePanel(liveReceiverState, handlePanelDisposed);
@@ -125,6 +143,7 @@ export async function stopLiveReceiver(showMessage = true): Promise<void> {
   liveReceiverState = null;
   state.panel?.dispose();
   clearPublishedAutoAttachMetadata();
+  emitLiveReceiverStateChanged();
 
   await new Promise<void>((resolve) => {
     state.server.close(() => resolve());
@@ -145,20 +164,49 @@ export async function copyLiveAttachSnippet(context: vscode.ExtensionContext): P
   void vscode.window.showInformationMessage("Copied the live DevTools attach snippet to the clipboard.");
 }
 
-function applyLiveSessionPayload(payload: LiveSessionPayload): void {
+function applyLiveSessionPayload(payload: LiveSessionPayload): LiveSessionAck {
   if (!liveReceiverState) {
-    return;
+    return {
+      accepted: true,
+      phase: payload.phase,
+      state: "waiting",
+      connectedAt: null,
+      instanceId: payload.session.snapshot.instanceId
+    };
   }
 
+  const now = Date.now();
   liveReceiverState.latestSession = payload.session;
   liveReceiverState.lastPhase = payload.phase;
-  liveReceiverState.lastUpdateAt = Date.now();
+  liveReceiverState.lastUpdateAt = now;
+  liveReceiverState.lastSessionInstanceId = payload.session.snapshot.instanceId;
+
+  if (payload.phase === "dispose") {
+    liveReceiverState.connectionState = "waiting";
+    liveReceiverState.connectedAt = null;
+  } else {
+    liveReceiverState.connectionState = "connected";
+    if (payload.phase === "ready" || liveReceiverState.connectedAt === null) {
+      liveReceiverState.connectedAt = now;
+    }
+  }
+
   updateLivePanel(liveReceiverState);
+  emitLiveReceiverStateChanged();
+
+  return {
+    accepted: true,
+    phase: payload.phase,
+    state: liveReceiverState.connectionState,
+    connectedAt: liveReceiverState.connectedAt,
+    instanceId: liveReceiverState.lastSessionInstanceId
+  };
 }
 
 function handlePanelDisposed(): void {
   if (liveReceiverState) {
     liveReceiverState.panel = null;
+    emitLiveReceiverStateChanged();
   }
 }
 
