@@ -71,6 +71,7 @@ const {
 const {
   clearAutoAttachMetadata,
   resolveAutoAttachMetadataFilePath,
+  resolveGlobalAutoAttachMetadataFilePath,
   writeAutoAttachMetadata
 } = require(path.join(distRoot, 'devtools', 'live', 'autoAttachMetadata.js'));
 const { renderSessionHtml } = require(path.join(distRoot, 'devtools', 'session', 'html.js'));
@@ -411,31 +412,98 @@ test('extracts likely component tags and relative imports from tera files', () =
 test('writes and clears auto-attach metadata for Terajs workspaces', () => {
   const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'terajs-auto-attach-'));
   const otherRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'terajs-auto-attach-other-'));
+  const previousManifestOverride = process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH;
+  process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH = path.join(os.tmpdir(), `terajs-auto-attach-global-${Date.now()}`, 'devtools-bridge.json');
 
   try {
     fs.writeFileSync(path.join(workspaceRoot, 'terajs.config.cjs'), 'module.exports = {};', 'utf8');
 
     const writtenPaths = writeAutoAttachMetadata([workspaceRoot, otherRoot], {
       session: 'http://127.0.0.1:4000/live/token',
-      ai: 'http://127.0.0.1:4000/ai/token'
+      ai: 'http://127.0.0.1:4000/ai/token',
+      reveal: 'http://127.0.0.1:4000/reveal/token'
     });
 
-    assert.equal(writtenPaths.length, 1);
+    assert.equal(writtenPaths.length, 2);
 
     const metadataPath = resolveAutoAttachMetadataFilePath(workspaceRoot);
-    assert.equal(writtenPaths[0], metadataPath);
+    const globalMetadataPath = resolveGlobalAutoAttachMetadataFilePath();
+    assert.ok(writtenPaths.includes(metadataPath));
+    assert.ok(writtenPaths.includes(globalMetadataPath));
     assert.ok(fs.existsSync(metadataPath));
+    assert.ok(fs.existsSync(globalMetadataPath));
 
     const payload = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
     assert.equal(payload.version, 1);
     assert.equal(payload.session, 'http://127.0.0.1:4000/live/token');
     assert.equal(payload.ai, 'http://127.0.0.1:4000/ai/token');
+    assert.equal(payload.reveal, 'http://127.0.0.1:4000/reveal/token');
 
-    clearAutoAttachMetadata([workspaceRoot, otherRoot]);
+    const globalPayload = JSON.parse(fs.readFileSync(globalMetadataPath, 'utf8'));
+    assert.equal(globalPayload.version, 1);
+    assert.equal(globalPayload.session, 'http://127.0.0.1:4000/live/token');
+    assert.equal(globalPayload.ai, 'http://127.0.0.1:4000/ai/token');
+    assert.equal(globalPayload.reveal, 'http://127.0.0.1:4000/reveal/token');
+
+    clearAutoAttachMetadata([workspaceRoot, otherRoot], {
+      session: 'http://127.0.0.1:4000/live/token',
+      ai: 'http://127.0.0.1:4000/ai/token',
+      reveal: 'http://127.0.0.1:4000/reveal/token'
+    });
     assert.equal(fs.existsSync(metadataPath), false);
+    assert.equal(fs.existsSync(globalMetadataPath), false);
   } finally {
+    if (previousManifestOverride === undefined) {
+      delete process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH;
+    } else {
+      process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH = previousManifestOverride;
+    }
     fs.rmSync(workspaceRoot, { recursive: true, force: true });
     fs.rmSync(otherRoot, { recursive: true, force: true });
+  }
+});
+
+test('preserves newer global auto-attach metadata owned by another receiver', () => {
+  const workspaceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'terajs-auto-attach-owned-'));
+  const previousManifestOverride = process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH;
+  process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH = path.join(os.tmpdir(), `terajs-auto-attach-owned-global-${Date.now()}`, 'devtools-bridge.json');
+
+  try {
+    fs.writeFileSync(path.join(workspaceRoot, 'terajs.config.cjs'), 'module.exports = {};', 'utf8');
+
+    writeAutoAttachMetadata([workspaceRoot], {
+      session: 'http://127.0.0.1:4100/live/first',
+      ai: 'http://127.0.0.1:4100/ai/first',
+      reveal: 'http://127.0.0.1:4100/reveal/first'
+    });
+
+    writeAutoAttachMetadata([workspaceRoot], {
+      session: 'http://127.0.0.1:4200/live/second',
+      ai: 'http://127.0.0.1:4200/ai/second',
+      reveal: 'http://127.0.0.1:4200/reveal/second'
+    });
+
+    const globalMetadataPath = resolveGlobalAutoAttachMetadataFilePath();
+    clearAutoAttachMetadata([workspaceRoot], {
+      session: 'http://127.0.0.1:4100/live/first',
+      ai: 'http://127.0.0.1:4100/ai/first',
+      reveal: 'http://127.0.0.1:4100/reveal/first'
+    });
+
+    assert.equal(fs.existsSync(globalMetadataPath), true);
+
+    const globalPayload = JSON.parse(fs.readFileSync(globalMetadataPath, 'utf8'));
+    assert.equal(globalPayload.session, 'http://127.0.0.1:4200/live/second');
+    assert.equal(globalPayload.ai, 'http://127.0.0.1:4200/ai/second');
+    assert.equal(globalPayload.reveal, 'http://127.0.0.1:4200/reveal/second');
+  } finally {
+    if (previousManifestOverride === undefined) {
+      delete process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH;
+    } else {
+      process.env.TERAJS_DEVTOOLS_BRIDGE_MANIFEST_PATH = previousManifestOverride;
+    }
+    fs.rmSync(workspaceRoot, { recursive: true, force: true });
+    fs.rmSync(path.dirname(resolveGlobalAutoAttachMetadataFilePath()), { recursive: true, force: true });
   }
 });
 

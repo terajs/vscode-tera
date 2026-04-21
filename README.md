@@ -53,7 +53,7 @@ If the current workspace contains `terajs.config.js`, `terajs.config.cjs`, `tera
 
 Supported pairing paths:
 
-1. Automatic app-side discovery: call `autoAttachVsCodeDevtoolsBridge()` from `@terajs/app/devtools` in a development build. The extension writes `node_modules/.cache/terajs/devtools-bridge.json`, the Terajs Vite plugin serves that metadata at `/_terajs/devtools/bridge`, and the browser discovers the local receiver from that manifest. The page only starts streaming once you explicitly connect from the overlay or a custom shell.
+1. Automatic app-side discovery: call `autoAttachVsCodeDevtoolsBridge()` from `@terajs/app/devtools` in a development build. The extension writes `node_modules/.cache/terajs/devtools-bridge.json` for active Terajs workspaces and also publishes a user-local fallback manifest, the Terajs Vite plugin serves that metadata at `/_terajs/devtools/bridge`, and the browser discovers the local receiver from that manifest. The page only starts streaming once you explicitly connect from the overlay or a custom shell.
 2. Manual one-session pairing: run `Terajs: Start Live DevTools Session` or `Terajs: Copy Live DevTools Attach Snippet`, then paste the copied snippet into the browser console on a page where Terajs DevTools is mounted.
 
 Once paired, the extension exposes three tokenized localhost routes on `127.0.0.1`:

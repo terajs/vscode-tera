@@ -142,7 +142,7 @@ export async function stopLiveReceiver(showMessage = true): Promise<void> {
 
   liveReceiverState = null;
   state.panel?.dispose();
-  clearPublishedAutoAttachMetadata();
+  clearPublishedAutoAttachMetadata(state.endpoints);
   emitLiveReceiverStateChanged();
 
   await new Promise<void>((resolve) => {
@@ -230,6 +230,6 @@ function publishAutoAttachMetadata(endpoints: LiveReceiverState["endpoints"]): v
   writeAutoAttachMetadata(getWorkspaceFolderPaths(), endpoints);
 }
 
-function clearPublishedAutoAttachMetadata(): void {
-  clearAutoAttachMetadata(getWorkspaceFolderPaths());
+function clearPublishedAutoAttachMetadata(endpoints?: LiveReceiverState["endpoints"]): void {
+  clearAutoAttachMetadata(getWorkspaceFolderPaths(), endpoints);
 }
