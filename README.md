@@ -6,7 +6,7 @@ Project links:
 
 - Terajs project site: [terajs.com](https://terajs.com)
 - Terajs documentation: [terajs.com/docs](https://terajs.com/docs)
-- Source repository: [github.com/Thecodergabe/terajs](https://github.com/Thecodergabe/terajs)
+- Source repository: [github.com/Thecodergabe/terajs](https://github.com/terajs/terajs)
 
 ## Install
 
@@ -94,5 +94,5 @@ Safety model:
 ## Need help?
 
 - Terajs docs: [terajs.com/docs](https://terajs.com/docs)
-- Terajs repository: [github.com/Thecodergabe/terajs](https://github.com/Thecodergabe/terajs)
-- Terajs issues: [github.com/Thecodergabe/terajs/issues](https://github.com/Thecodergabe/terajs/issues)
+- Terajs repository: [github.com/Thecodergabe/terajs](https://github.com/terajs/terajs)
+- Terajs issues: [github.com/Thecodergabe/terajs/issues](https://github.com/terajs/terajs/issues)

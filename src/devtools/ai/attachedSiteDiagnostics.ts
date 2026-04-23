@@ -113,7 +113,7 @@ export function buildAttachedSiteDiagnosticsPayload(
       codeReferences: session.codeReferences,
       recentEvents,
       recentEventCount: recentEvents.length,
-      totalEventCount: session.events.length
+      totalEventCount: Math.max(session.snapshot.eventCount, session.events.length)
     }
   };
 }

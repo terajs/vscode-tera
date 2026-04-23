@@ -2,6 +2,17 @@
 
 All notable changes to `terajs-tera-language-tools` are documented in this file.
 
+## 0.0.8
+
+- Keep attached-site event counts aligned with live bridge snapshots when update-mode payloads trim older events from the exported session body
+- Expand `<ai>` schema support with `entities` and allow unknown top-level AI metadata keys so extension diagnostics stay aligned with Terajs runtime parsing
+- Fix `.tera` grammar coverage for YAML list entries, structured-block closing tags, and template closing tags such as `</svg>` and `</use>`
+
+## 0.0.7
+
+- Publish live DevTools auto-attach metadata to a user-local fallback location so Terajs apps can still find the VS Code receiver outside the active workspace roots
+- Keep global fallback metadata cleanup ownership-aware so one VS Code window does not clear another receiver's newer bridge manifest
+
 ## 0.0.6
 
 - Add the sticky `@terajs` chat participant, `Terajs: Inspect Attached Site`, and the attached-site status bar surface so connected pages can be inspected directly in chat from the current sanitized snapshot

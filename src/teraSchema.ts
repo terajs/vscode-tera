@@ -258,6 +258,12 @@ const AI_FIELDS: readonly FieldDefinition[] = [
     description: "AI keywords for indexing or prompt shaping.",
     kind: "string-or-list",
     useListSnippet: true
+  },
+  {
+    key: "entities",
+    description: "Named entities extracted or declared for retrieval and tooling.",
+    kind: "string-or-list",
+    useListSnippet: true
   }
 ];
 
@@ -276,9 +282,9 @@ const BLOCKS: Record<TeraStructuredBlockTag, BlockDefinition> = {
   },
   ai: {
     tag: "ai",
-    description: "Instructional AI metadata block.",
+    description: "Instructional AI metadata block. Common fields are documented, and unknown top-level keys are preserved.",
     fields: AI_FIELDS,
-    allowUnknownTopLevel: false
+    allowUnknownTopLevel: true
   }
 };
 

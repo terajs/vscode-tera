@@ -15,3 +15,11 @@ test('ai schema includes entities as a list-capable field', () => {
   assert.equal(entitiesField.kind, 'string-or-list');
   assert.equal(entitiesField.useListSnippet, true);
 });
+
+test('meta and ai schemas allow unknown top-level keys', () => {
+  const metaBlock = getBlockDefinition('meta');
+  const aiBlock = getBlockDefinition('ai');
+
+  assert.equal(metaBlock.allowUnknownTopLevel, true);
+  assert.equal(aiBlock.allowUnknownTopLevel, true);
+});

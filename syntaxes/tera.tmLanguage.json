@@ -45,7 +45,9 @@
       "patterns": [
         { "include": "#template-interpolation" },
         { "include": "#template-component-tag" },
+        { "include": "#template-component-close-tag" },
         { "include": "#template-tag" },
+        { "include": "#template-close-tag" },
         { "include": "text.html.basic" }
       ]
     },
@@ -70,6 +72,22 @@
       "end": "(/?>)",
       "endCaptures": { "1": { "name": "punctuation.definition.tag.end.html" } },
       "patterns": [{ "include": "#html-tag-attributes" }]
+    },
+    "template-close-tag": {
+      "match": "(</)([a-z][\\w:-]*)(>)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.html" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      }
+    },
+    "template-component-close-tag": {
+      "match": "(</)([A-Z][\\w:-]*|[a-z][\\w:-]*-[\\w:-]*)(>)",
+      "captures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "entity.name.tag.html support.class.component.html.tera" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      }
     },
     "html-tag-attributes": {
       "patterns": [
@@ -142,6 +160,11 @@
         "4": { "name": "punctuation.definition.tag.end.html" }
       },
       "end": "(</)(meta)(>)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "storage.type.block.tera" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      },
       "patterns": [{ "include": "#tera-yaml-body" }]
     },
     "route-block": {
@@ -152,6 +175,11 @@
         "4": { "name": "punctuation.definition.tag.end.html" }
       },
       "end": "(</)(route)(>)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "storage.type.block.tera" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      },
       "patterns": [{ "include": "#tera-yaml-body" }]
     },
     "ai-block": {
@@ -162,11 +190,17 @@
         "4": { "name": "punctuation.definition.tag.end.html" }
       },
       "end": "(</)(ai)(>)",
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.html" },
+        "2": { "name": "storage.type.block.tera" },
+        "3": { "name": "punctuation.definition.tag.end.html" }
+      },
       "patterns": [{ "include": "#tera-yaml-body" }]
     },
     "tera-yaml-body": {
       "patterns": [
         { "match": "^\\s*#.*$", "name": "comment.line.number-sign.tera" },
+        { "match": "^\\s*-\\s+.*$", "name": "meta.sequence.item.tera" },
         { "match": "^\\s*([A-Za-z_][\\w:-]*)(\\s*)(:)", "captures": { "1": { "name": "support.type.property-name.tera" }, "3": { "name": "punctuation.separator.key-value.tera" } } },
         { "match": "\\b(true|false|auto|eager|visible|idle|interaction|none|ai|low|normal|high)\\b", "name": "constant.language.tera" },
         { "match": "\\b\\d+(?:\\.\\d+)?\\b", "name": "constant.numeric.tera" },
