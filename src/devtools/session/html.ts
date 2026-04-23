@@ -335,7 +335,7 @@ export function renderSessionHtml(
         <span class="pill">tab: ${escapeHtml(session.snapshot.activeTab)}</span>
         <span class="pill">theme: ${escapeHtml(session.snapshot.theme)}</span>
         <span class="pill">AI: ${escapeHtml(session.snapshot.ai.status)}</span>
-        <span class="pill">events: ${escapeHtml(String(session.events.length))}</span>
+        <span class="pill">events: ${escapeHtml(String(Math.max(session.snapshot.eventCount, session.events.length)))}</span>
       </div>
     </section>
 

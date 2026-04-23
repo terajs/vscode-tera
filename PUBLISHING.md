@@ -4,7 +4,7 @@ This extension is published as part of the broader Terajs project:
 
 - Project site: [terajs.com](https://terajs.com)
 - Documentation: [terajs.com/docs](https://terajs.com/docs)
-- Source repository: [github.com/Thecodergabe/terajs](https://github.com/Thecodergabe/terajs)
+- Source repository: [github.com/Thecodergabe/terajs](https://github.com/terajs/terajs)
 
 Marketplace releases are manual today.
 

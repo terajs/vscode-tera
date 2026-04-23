@@ -70,7 +70,7 @@ export function buildLiveAttachSnippet(endpoints: LiveBridgeEndpoints): string {
       return;
     }
 
-    const session = bridge.exportSession();
+    const session = bridge.exportSession(undefined, phase === "update" ? "update" : "full");
     if (!session) {
       return;
     }

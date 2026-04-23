@@ -46,6 +46,13 @@ function assertTokenIncludesExactScope(token, expectedScope, label) {
   );
 }
 
+function assertTokenExcludesExactScope(token, unexpectedScope, label) {
+  assert(
+    !token.scopes.includes(unexpectedScope),
+    `Expected ${label} to exclude exact scope ${unexpectedScope}. Received: ${token.scopes.join(', ')}`
+  );
+}
+
 async function main() {
   const root = path.resolve(__dirname, '..');
   const grammarPath = path.join(root, 'syntaxes', 'tera.tmLanguage.json');
@@ -78,6 +85,16 @@ async function main() {
   const componentTag = findToken(componentLine.tokens, (token) => token.text === 'DevtoolsEmbed', 'component tag');
   assertTokenIncludesExactScope(componentTag, 'entity.name.tag.html', 'component tag');
   assertTokenIncludesExactScope(componentTag, 'support.class.component.html.tera', 'component tag');
+
+  const svgCloseLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '    </svg>'));
+  const svgCloseTag = findToken(svgCloseLine.tokens, (token) => token.text === 'svg', 'svg closing tag');
+  assertTokenIncludesExactScope(svgCloseTag, 'entity.name.tag.html', 'svg closing tag');
+  assertTokenExcludesExactScope(svgCloseTag, 'invalid.illegal.unrecognized-tag.html', 'svg closing tag');
+
+  const useLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '      <use :href="iconHref"></use>'));
+  const useCloseTag = findToken(useLine.tokens, (token) => token.text === 'use' && token.startIndex > 25, 'use closing tag');
+  assertTokenIncludesExactScope(useCloseTag, 'entity.name.tag.html', 'use closing tag');
+  assertTokenExcludesExactScope(useCloseTag, 'invalid.illegal.unrecognized-tag.html', 'use closing tag');
 
   const componentAttribute = findToken(componentLine.tokens, (token) => token.text === 'mode', 'component attribute');
   assertTokenIncludesExactScope(componentAttribute, 'entity.other.attribute-name.html', 'component attribute');
@@ -141,6 +158,26 @@ async function main() {
   const metaBlockLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '<meta>'));
   const metaBlockTag = findToken(metaBlockLine.tokens, (token) => token.text === 'meta', 'meta block tag');
   assertTokenIncludesExactScope(metaBlockTag, 'storage.type.block.tera', 'meta block tag');
+
+  const metaBlockCloseLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '</meta>'));
+  const metaBlockCloseTag = findToken(metaBlockCloseLine.tokens, (token) => token.text === 'meta', 'meta closing block tag');
+  assertTokenIncludesExactScope(metaBlockCloseTag, 'storage.type.block.tera', 'meta closing block tag');
+
+  const aiBlockLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '<ai>'));
+  const aiBlockTag = findToken(aiBlockLine.tokens, (token) => token.text === 'ai', 'ai block tag');
+  assertTokenIncludesExactScope(aiBlockTag, 'storage.type.block.tera', 'ai block tag');
+
+  const aiBlockCloseLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '</ai>'));
+  const aiBlockCloseTag = findToken(aiBlockCloseLine.tokens, (token) => token.text === 'ai', 'ai closing block tag');
+  assertTokenIncludesExactScope(aiBlockCloseTag, 'storage.type.block.tera', 'ai closing block tag');
+
+  const aiSummaryLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, 'summary: Fixture AI summary'));
+  const aiSummaryKey = findToken(aiSummaryLine.tokens, (token) => token.text === 'summary', 'ai summary key');
+  assertTokenIncludesExactScope(aiSummaryKey, 'support.type.property-name.tera', 'ai summary key');
+
+  const aiListLine = tokenizeLinesWithGrammar(grammar, lines, findLineNumber(lines, '  - tera'));
+  const aiListItem = findToken(aiListLine.tokens, (token) => token.text.includes('- tera'), 'ai list item');
+  assertTokenIncludesExactScope(aiListItem, 'meta.sequence.item.tera', 'ai list item');
 
   console.log('Grammar regression checks passed.');
 }
