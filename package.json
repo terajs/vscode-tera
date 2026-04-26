@@ -2,7 +2,7 @@
   "name": "terajs-tera-language-tools",
   "displayName": "Terajs - Tera Language Tools",
   "description": "Official VS Code language support and DevTools session inspection for Terajs .tera single-file components.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "publisher": "Terajs",
   "license": "Apache-2.0",
   "repository": "https://github.com/terajs/terajs",

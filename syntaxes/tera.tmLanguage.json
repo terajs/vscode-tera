@@ -101,15 +101,29 @@
       ]
     },
     "conditional-directive-attribute": {
-      "begin": "(v-(?:if|else-if|else|show))(\\s*)(=)(\\s*)([\"'])",
-      "beginCaptures": {
-        "1": { "name": "entity.other.attribute-name.html keyword.control.conditional.tera" },
-        "3": { "name": "punctuation.separator.key-value.html" },
-        "5": { "name": "punctuation.definition.string.begin.html" }
-      },
-      "end": "\\5",
-      "endCaptures": { "0": { "name": "punctuation.definition.string.end.html" } },
-      "patterns": [{ "include": "source.ts" }]
+      "patterns": [
+        {
+          "name": "entity.other.attribute-name.html keyword.control.conditional.tera",
+          "match": "v-(?:if|else-if|show)"
+        },
+        {
+          "begin": "(v-(?:if|else-if|show))(\\s*)(=)(\\s*)([\"'])",
+          "beginCaptures": {
+            "1": { "name": "entity.other.attribute-name.html keyword.control.conditional.tera" },
+            "3": { "name": "punctuation.separator.key-value.html" },
+            "5": { "name": "punctuation.definition.string.begin.html" }
+          },
+          "end": "\\5",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.html" }
+          },
+          "patterns": [{ "include": "source.ts" }]
+        },
+        {
+          "name": "entity.other.attribute-name.html keyword.control.conditional.tera",
+          "match": "v-else\\b"
+        }
+      ]
     },
     "loop-directive-attribute": {
       "begin": "(v-for)(\\s*)(=)(\\s*)([\"'])",
